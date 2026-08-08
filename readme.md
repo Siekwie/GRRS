@@ -1,4 +1,4 @@
-# Application plan: Odin Git Repository Scanner
+# Application: Odin Git Repository Scanner
 
 ## Goal
 
@@ -15,7 +15,7 @@ A desktop GUI app that:
    - Ahead/behind/up-to-date status against upstream/origin
    - Local branch count
 
-Sorting folders are traversed but are not shown as repository rows unless they are Git
+Folders are traversed but are not shown as repository rows unless they are Git
 repositories themselves.
 
 ---
@@ -37,7 +37,7 @@ Repos: 24     Scanning complete     [Rescan] [Fetch all] [Change root]
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
-Recommended row fields:
+row fields:
 
 | Field        | Meaning                                                    |
 | ------------ | ---------------------------------------------------------- |
@@ -45,10 +45,8 @@ Recommended row fields:
 | Working tree | Clean, modified, staged, untracked, conflicted             |
 | Remote state | Up to date, ahead, behind, diverged, no upstream, detached |
 | Branches     | Local branch count                                         |
-| Last checked | Optional timestamp                                         |
-| Actions      | Open folder, open terminal, refresh one repo               |
 
-Use colors plus text/icons, never color alone:
+Colors plus text/icons, never color alone:
 
 - Green: clean / up to date
 - Yellow: local modifications / ahead
