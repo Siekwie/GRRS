@@ -1,0 +1,28 @@
+# GRRS — Git Repository Scanner
+
+Desktop utility in Odin that recursively discovers Git repositories under a chosen root and displays working-tree and remote-tracking status.
+
+## Locked decisions
+
+- Language: Odin
+- Graphics: raylib (`vendor:raylib`) — custom immediate-mode UI
+- Git: subprocess via `core:os` `process_exec`; never parse `.git` internals directly
+- Concurrency: filesystem scanner + bounded Git worker pool; UI updates on main thread only
+- Remote status: branch upstream + local remote-tracking refs; no auto-fetch
+
+## Structure (non-negotiable)
+
+- `src/model/` = shared state, repository types, enums
+- `src/app/` = state, actions, main loop wiring
+- `src/scanner/` = filesystem discovery
+- `src/git/` = git commands, status parsing, repository inspection
+- `src/jobs/` = event queue, scan worker orchestration
+- `src/ui/` = raylib views, theme, widgets
+- `src/platform/` = native folder picker abstraction
+- `main.odin` = entry; package `GRRS`
+
+## Style
+
+- Package names match directory names: `app`, `scanner`, `git`, `jobs`, `ui`, `platform`
+- Background workers send events; main thread owns `App_State`
+- Per-repo Git failures must not abort the scan
