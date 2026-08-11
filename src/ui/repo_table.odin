@@ -116,6 +116,11 @@ draw_repo_table :: proc(state: ^model.App_State) -> Repo_Table_Result {
 		draw_text(hint, PAD + 8, empty_y + 30, FONT_BODY, COL_MUTED)
 	}
 
+	mx := rl.GetMouseX()
+	my := rl.GetMouseY()
+	remote_col_w := col_branches - col_remote
+	tooltip_text: string
+
 	for row in 0 ..< visible_rows {
 		idx := start_row + row
 		if idx >= len(indices) do break
@@ -133,11 +138,20 @@ draw_repo_table :: proc(state: ^model.App_State) -> Repo_Table_Result {
 		work_label, work_col := worktree_label(repo)
 		draw_text(work_label, col_work, y + 6, FONT_BODY, work_col)
 
-		remote_label, remote_col := remote_label(repo)
-		draw_text(remote_label, col_remote, y + 6, FONT_BODY, remote_col)
+		remote_label_str, remote_col := remote_label(repo)
+		draw_text(remote_label_str, col_remote, y + 6, FONT_BODY, remote_col)
+
+		if tip, ok := remote_branch_tooltip(repo); ok &&
+		   point_in_rect(mx, my, col_remote, y, remote_col_w, ROW_H) {
+			tooltip_text = tip
+		}
 
 		branch_text := fmt.tprintf("%d", repo.local_branch_count)
 		draw_text(branch_text, col_branches, y + 6, FONT_BODY, COL_TEXT)
+	}
+
+	if len(tooltip_text) > 0 {
+		draw_tooltip(tooltip_text, mx, my)
 	}
 
 	if state.is_scanning {
@@ -242,6 +256,22 @@ worktree_label :: proc(repo: model.Repository) -> (label: string, col: rl.Color)
 		return "Unknown", COL_NEUTRAL
 	}
 	return "Unknown", COL_NEUTRAL
+}
+
+@(private)
+remote_branch_tooltip :: proc(repo: model.Repository) -> (text: string, ok: bool) {
+	if repo.scan_state != .Ready do return "", false
+	if repo.local_branch_count <= 1 do return "", false
+	if len(repo.current_branch) == 0 do return "", false
+
+	#partial switch repo.remote_state {
+	case .Up_To_Date, .Ahead, .Behind, .Diverged:
+		if len(repo.upstream_branch) > 0 {
+			return fmt.tprintf("Branch: %s · vs %s", repo.current_branch, repo.upstream_branch), true
+		}
+		return fmt.tprintf("Branch: %s", repo.current_branch), true
+	}
+	return "", false
 }
 
 @(private)

@@ -24,6 +24,35 @@ point_in_rect :: proc(px, py, x, y, w, h: i32) -> bool {
 	return px >= x && px < x + w && py >= y && py < y + h
 }
 
+TOOLTIP_PAD :: 8
+TOOLTIP_GAP :: 8
+
+draw_tooltip :: proc(text: string, mx, my: i32) {
+	tw := measure_text(text, FONT_SMALL)
+	th := i32(FONT_SMALL)
+	pad := i32(TOOLTIP_PAD)
+	box_w := tw + pad * 2
+	box_h := th + pad * 2
+
+	tx := mx + TOOLTIP_GAP
+	ty := my + TOOLTIP_GAP
+
+	sw := rl.GetScreenWidth()
+	sh := rl.GetScreenHeight()
+	if tx + box_w > sw {
+		tx = mx - box_w - TOOLTIP_GAP
+	}
+	if ty + box_h > sh {
+		ty = my - box_h - TOOLTIP_GAP
+	}
+	tx = max(0, tx)
+	ty = max(0, ty)
+
+	draw_rect(tx, ty, box_w, box_h, COL_PANEL2)
+	rl.DrawRectangleLines(tx, ty, box_w, box_h, COL_BORDER)
+	draw_text(text, tx + pad, ty + pad, FONT_SMALL, COL_TEXT)
+}
+
 button :: proc(label: string, x, y, w, h: i32, enabled := true) -> Button_Result {
 	res: Button_Result
 	mx := rl.GetMouseX()
